@@ -1,0 +1,48 @@
+PKG_NAME=relic
+PKG_URL=http://github.com/relic-toolkit/relic.git
+PKG_VERSION=master
+PKG_DIR=$(CURDIR)/$(PKG_NAME)
+
+ifneq ($(RIOTBOARD),)
+include $(RIOTBOARD)/$(BOARD)/Makefile.include
+endif
+
+ifneq ($(RIOTBASE),)
+INCLUDES += -I$(RIOTBASE)/sys/include -I$(RIOTBASE)/sys/net/include \
+			-I$(RIOTBASE)/sys/posix/include -I$(RIOTBASE)/sys/posix/pnet/include
+endif
+
+.PHONY: all clean  reset
+
+all: $(PKG_DIR)/Makefile
+	"$(MAKE)" -C $(PKG_DIR) && \
+	cp $(PKG_DIR)/lib/librelic_s.a $(BINDIR)$(PKG_NAME).a
+
+$(PKG_DIR)/comp-options.cmake: $(PKG_DIR)/.git/config
+	cd "$(PKG_DIR)" && perl ../generate-cmake-xcompile.perl > comp-options.cmake
+
+$(PKG_DIR)/Makefile: $(PKG_DIR)/comp-options.cmake
+ifeq ($(BOARD), native)
+	cd "$(PKG_DIR)" && COMP="$(filter-out -Werror=old-style-definition -Werror=strict-prototypes, $(CFLAGS) ) " cmake -DCHECK=off -DTESTS=0 -DBENCH=0 -DOPSYS=NONE -DSHLIB=off $(RELIC_CONFIG_FLAGS) .
+else
+	cd "$(PKG_DIR)" && COMP="$(filter-out -Werror=old-style-definition -Werror=strict-prototypes, $(CFLAGS) ) " cmake -DCMAKE_TOOLCHAIN_FILE=comp-options.cmake -DCHECK=off -DTESTS=0 -DBENCH=0 -DOPSYS=NONE -DSHLIB=off $(RELIC_CONFIG_FLAGS) .
+endif
+$(PKG_DIR)/.git/config:
+	test -d "$(PKG_DIR)" || git clone "$(PKG_URL)" "$(PKG_DIR)"; \
+		cd "$(PKG_DIR)" && git checkout -f "$(PKG_VERSION)"
+
+clean::
+	@echo "Cleaning up relic package..."
+	@cd "$(PKG_DIR)" 2> /dev/null > /dev/null && \
+		git clean -x -f && \
+		git am --abort && \
+		git reset --hard "$(PKG_VERSION)" && \
+		find . -name CMakeFiles -type d -exec rm -rd {} + && \
+		rm Makefile && \
+		rm CMakeCache.txt 
+
+distclean::
+	rm -rf "$(PKG_DIR)"
+
+Makefile.include:
+	@true
