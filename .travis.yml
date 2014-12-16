@@ -32,7 +32,8 @@ install:
             binutils-avr \
             avr-libc \
             cppcheck \
-            doxygen
+            doxygen \
+            cmake
     - git config --global user.email "travis@example.com"
     - git config --global user.name "Travis CI"
 
