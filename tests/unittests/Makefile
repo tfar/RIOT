@@ -9,7 +9,7 @@ USEMODULE += embunit
 # Some randomly generated but still deterministic values for testing
 CFLAGS += -DTEST_STRING4="\"J\&\(d\""
 CFLAGS += -DTEST_STRING8="\"o\<\\\\rrB\/q\""
-CFLAGS += -DTEST_STRING12="\"50U\'HLKC3_ft\""
+CFLAGS += -DTEST_STRING12="\"50U\'HLK\'3_ft\""
 CFLAGS += -DTEST_STRING16="\"nvxuO*6o3C=a6g7]\""
 CFLAGS += -DTEST_STRING64="\"3key9\'=4\\\\wvAM\&\;.E\&U\/rOG\:\>\\\\C\!r\{K\ k.E\[\%\;\(\}_I\(D\%XQk8+T\>_M^G\'Mm49,n:\)\)\]\}\""
 CFLAGS += -DTEST_INT8=-69
